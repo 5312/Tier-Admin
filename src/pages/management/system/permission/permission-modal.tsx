@@ -96,7 +96,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 	});
 
 	return (
-		<Dialog open={show} onOpenChange={(open:any) => !open && onCancel()}>
+		<Dialog open={show} onOpenChange={(open: any) => !open && onCancel()}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
@@ -118,7 +118,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 											variant="outline"
 											className="w-auto"
 											value={String(field.value)}
-											onValueChange={(value:any) => {
+											onValueChange={(value: any) => {
 												if (value !== "") {
 													field.onChange(Number(value));
 												}
@@ -151,8 +151,10 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>父级</FormLabel>
-									<FormControl>
+									<FormControl asChild={false} id="tree12312312">
 										<TreeSelect
+											getPopupContainer={() => document.getElementById("tree12312312") as any}
+											style={{ width: "100%" }}
 											fieldNames={{
 												label: "name", // 修改为显示 name 而不是 path
 												value: "id",
@@ -168,6 +170,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 												}
 											}}
 											onChange={(value) => {
+												console.log(value);
 												field.onChange(value || null); // 处理清除操作
 											}}
 										/>
@@ -196,8 +199,10 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>组件</FormLabel>
-										<FormControl>
+										<FormControl asChild={false} id="com123">
 											<AutoComplete
+												getPopupContainer={() => document.getElementById("tree12312312") as any}
+												style={{ width: "100%" }}
 												options={compOptions}
 												filterOption={(input, option) => {
 													if (!option) return false;
@@ -239,7 +244,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 											type="single"
 											variant="outline"
 											value={String(!!field.value)}
-											onValueChange={(value:any) => {
+											onValueChange={(value: any) => {
 												field.onChange(Boolean(value));
 											}}
 										>
@@ -282,7 +287,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 											type="single"
 											variant="outline"
 											value={String(field.value)}
-											onValueChange={(value:any) => {
+											onValueChange={(value: any) => {
 												field.onChange(Number(value));
 											}}
 										>
