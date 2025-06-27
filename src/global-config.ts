@@ -10,7 +10,7 @@ export type GlobalConfig = {
 };
 
 export const GLOBAL_CONFIG: GlobalConfig = {
-	appName: "Slash Admin",
+	appName: "Tier Admin",
 	appVersion: packageJson.version,
 	homepage: import.meta.env.VITE_APP_HOMEPAGE || "/",
 	basePath: import.meta.env.VITE_APP_BASE_PATH || "/",
