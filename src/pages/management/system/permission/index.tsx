@@ -3,44 +3,53 @@ import { Icon } from "@/components/icon";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader } from "@/ui/card";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Table, { type ColumnsType } from "antd/es/table";
 import { isNil } from "ramda";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { Permission_Old } from "#/entity";
+import type { MenuTree } from "#/entity";
 import { BasicStatus, PermissionType } from "#/enum";
 
 import PermissionModal, { type PermissionModalProps } from "./permission-modal";
 
-const defaultPermissionValue: Permission_Old = {
-	id: "",
-	parentId: "",
+const defaultPermissionValue: Omit<MenuTree, "id"> = {
 	name: "",
-	label: "",
-	route: "",
+	code: "",
+	path: "",
 	component: "",
 	icon: "",
-	hide: false,
 	status: BasicStatus.ENABLE,
 	type: PermissionType.CATALOGUE,
+	parentId: "",
+	children: [],
 };
 export default function PermissionPage() {
 	// const permissions = useUserPermission();
-	const { t } = useTranslation();
 
+	const { t } = useTranslation();
+	const { data: menus, refetch } = useQuery({
+		queryKey: ["menu"],
+		queryFn: menuService.getMenuTree,
+	});
+	// 删除请求
+	const deleteMutation = useMutation({
+		mutationFn: menuService.removeMenu,
+	});
 	const [permissionModalProps, setPermissionModalProps] = useState<PermissionModalProps>({
 		formValue: { ...defaultPermissionValue },
 		title: "新建",
 		show: false,
 		onOk: () => {
 			setPermissionModalProps((prev) => ({ ...prev, show: false }));
+			refetch();
 		},
 		onCancel: () => {
 			setPermissionModalProps((prev) => ({ ...prev, show: false }));
 		},
+		permissions: [],
 	});
-	const columns: ColumnsType<Permission_Old> = [
+	const columns: ColumnsType<MenuTree> = [
 		{
 			title: "名称",
 			dataIndex: "name",
@@ -51,7 +60,7 @@ export default function PermissionPage() {
 			title: "类型",
 			dataIndex: "type",
 			width: 60,
-			render: (_, record) => <Badge variant="info">{PermissionType[record.type]}</Badge>,
+			render: (_, record) => <Badge variant="info">{t(PermissionType[record.type])}</Badge>,
 		},
 		{
 			title: "图标",
@@ -84,7 +93,7 @@ export default function PermissionPage() {
 			width: 100,
 			render: (_, record) => (
 				<div className="flex w-full justify-end text-gray">
-					{record?.type === PermissionType.CATALOGUE && (
+					{(record?.type === PermissionType.CATALOGUE || record?.type === PermissionType.MENU) && (
 						<Button variant="ghost" size="icon" onClick={() => onCreate(record.id)}>
 							<Icon icon="gridicons:add-outline" size={18} />
 						</Button>
@@ -92,7 +101,7 @@ export default function PermissionPage() {
 					<Button variant="ghost" size="icon" onClick={() => onEdit(record)}>
 						<Icon icon="solar:pen-bold-duotone" size={18} />
 					</Button>
-					<Button variant="ghost" size="icon">
+					<Button variant="ghost" size="icon" onClick={() => onRemove(record.id)}>
 						<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
 					</Button>
 				</div>
@@ -106,24 +115,25 @@ export default function PermissionPage() {
 			show: true,
 			...defaultPermissionValue,
 			title: "新建",
-			formValue: { ...defaultPermissionValue, parentId: parentId ?? "" },
+			formValue: { ...defaultPermissionValue, parent_id: parentId ?? null },
+			permissions: menus || [],
 		}));
 	};
 
-	const onEdit = (formValue: Permission_Old) => {
+	const onEdit = (formValue: MenuTree) => {
 		setPermissionModalProps((prev) => ({
 			...prev,
 			show: true,
 			title: "编辑",
 			formValue,
+			permissions: menus || [],
 		}));
 	};
 
-	// 在组织列表页面，获取组织列表数据
-	const { data } = useQuery({
-		queryKey: ["menu"],
-		queryFn: menuService.getMenuTree,
-	});
+	const onRemove = async (id: string) => {
+		await deleteMutation.mutateAsync(Number(id));
+		refetch();
+	};
 
 	return (
 		<Card>
@@ -134,7 +144,7 @@ export default function PermissionPage() {
 				</div>
 			</CardHeader>
 			<CardContent>
-				<Table rowKey="id" size="small" scroll={{ x: "max-content" }} pagination={false} columns={columns} dataSource={data} />
+				<Table rowKey="id" size="small" scroll={{ x: "max-content" }} pagination={false} columns={columns} dataSource={menus} />
 			</CardContent>
 			<PermissionModal {...permissionModalProps} />
 		</Card>

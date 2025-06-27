@@ -1,4 +1,7 @@
 {
+	"MENU": "菜单",
+	"CATALOGUE": "目录",
+	"COMPONENT": "组件",
 	"common": {
 		"okText": "确认",
 		"closeText": "关闭",

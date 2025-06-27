@@ -1,13 +1,15 @@
+import menuService from "@/api/services/menuService";
 // import { useUserPermission } from "@/store/userStore";
 import { Button } from "@/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
+import { useMutation } from "@tanstack/react-query";
 import { AutoComplete, TreeSelect } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { Permission_Old } from "#/entity";
+import type { Menu, MenuTree } from "#/entity";
 import { BasicStatus, PermissionType } from "#/enum";
 
 // Constants
@@ -22,38 +24,42 @@ const PAGE_SELECT_OPTIONS = Object.entries(PAGES).map(([path]) => {
 });
 
 export type PermissionModalProps = {
-	formValue: Permission_Old;
+	formValue: Omit<Menu, "id">;
 	title: string;
 	show: boolean;
-	onOk: (values: Permission_Old) => void;
+	onOk: (values: Menu) => void;
 	onCancel: VoidFunction;
+	permissions: MenuTree[];
 };
 
-export default function PermissionModal({ title, show, formValue, onOk, onCancel }: PermissionModalProps) {
-	const form = useForm<Permission_Old>({
-		defaultValues: formValue,
+export default function PermissionModal({ title, show, formValue, onOk, onCancel, permissions }: PermissionModalProps) {
+	const form = useForm<Menu>({
+		defaultValues: {
+			...formValue,
+			icon: formValue.icon || "",
+		},
 	});
 
-	// TODO: fix
-	// const permissions = useUserPermission();
-	const permissions: any[] = [];
 	const [compOptions, setCompOptions] = useState(PAGE_SELECT_OPTIONS);
 
-	const getParentNameById = useCallback((parentId: string, data: Permission_Old[] | undefined = permissions) => {
-		let name = "";
-		if (!data || !parentId) return name;
-		for (let i = 0; i < data.length; i += 1) {
-			if (data[i].id === parentId) {
-				name = data[i].name;
-			} else if (data[i].children) {
-				name = getParentNameById(parentId, data[i].children);
+	const getParentNameById = useCallback(
+		(parentId: string, data: MenuTree[] | undefined = permissions) => {
+			let name = "";
+			if (!data || !parentId) return name;
+			for (let i = 0; i < data.length; i += 1) {
+				if (data[i].id === parentId) {
+					name = data[i].name;
+				} else if (data[i].children) {
+					name = getParentNameById(parentId, data[i].children);
+				}
+				if (name) {
+					break;
+				}
 			}
-			if (name) {
-				break;
-			}
-		}
-		return name;
-	}, []);
+			return name;
+		},
+		[permissions],
+	);
 
 	const updateCompOptions = useCallback((name: string) => {
 		if (!name) return;
@@ -72,9 +78,22 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 		}
 	}, [formValue, form, getParentNameById, updateCompOptions]);
 
-	const onSubmit = (values: Permission_Old) => {
+	const onSubmit = async (values: Menu) => {
+		if (values.id) {
+			await modifyMutation.mutateAsync(values);
+		} else {
+			await createMutation.mutateAsync(values);
+		}
+
 		onOk(values);
 	};
+
+	const modifyMutation = useMutation({
+		mutationFn: menuService.updateMenu,
+	});
+	const createMutation = useMutation({
+		mutationFn: menuService.createMenu,
+	});
 
 	return (
 		<Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
@@ -100,7 +119,9 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 											className="w-auto"
 											value={String(field.value)}
 											onValueChange={(value) => {
-												field.onChange(value);
+												if (value !== "") {
+													field.onChange(Number(value));
+												}
 											}}
 										>
 											<ToggleGroupItem value={String(PermissionType.CATALOGUE)}>目录</ToggleGroupItem>
@@ -126,19 +147,6 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 
 						<FormField
 							control={form.control}
-							name="label"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>标签</FormLabel>
-									<FormControl>
-										<Input {...field} />
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={form.control}
 							name="parentId"
 							render={({ field }) => (
 								<FormItem>
@@ -146,13 +154,13 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 									<FormControl>
 										<TreeSelect
 											fieldNames={{
-												label: "name",
+												label: "name", // 修改为显示 name 而不是 path
 												value: "id",
 												children: "children",
 											}}
 											allowClear
 											treeData={permissions}
-											value={field.value}
+											value={field.value || undefined} // 处理 null/undefined 情况
 											onSelect={(value, node) => {
 												field.onChange(value);
 												if (node?.name) {
@@ -160,7 +168,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 												}
 											}}
 											onChange={(value) => {
-												field.onChange(value);
+												field.onChange(value || null); // 处理清除操作
 											}}
 										/>
 									</FormControl>
@@ -170,7 +178,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 
 						<FormField
 							control={form.control}
-							name="route"
+							name="path"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>路由</FormLabel>
@@ -191,9 +199,15 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 										<FormControl>
 											<AutoComplete
 												options={compOptions}
-												filterOption={(input, option) => ((option?.label || "") as string).toLowerCase().includes(input.toLowerCase())}
-												value={field.value || ""}
+												filterOption={(input, option) => {
+													if (!option) return false;
+													const label = option.label as string;
+													return label.toLowerCase().includes(input.toLowerCase());
+												}}
+												value={field.value || undefined}
 												onChange={(value) => field.onChange(value || null)}
+												placeholder="请选择组件路径"
+												allowClear
 											/>
 										</FormControl>
 									</FormItem>
@@ -208,7 +222,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 								<FormItem>
 									<FormLabel>图标</FormLabel>
 									<FormControl>
-										<Input {...field} />
+										<Input {...field} value={String(field.value || "")} />
 									</FormControl>
 								</FormItem>
 							)}
@@ -216,7 +230,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 
 						<FormField
 							control={form.control}
-							name="hide"
+							name="hidden"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>隐藏</FormLabel>
@@ -239,12 +253,19 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 
 						<FormField
 							control={form.control}
-							name="order"
+							name="sort"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>排序</FormLabel>
 									<FormControl>
-										<Input type="number" {...field} />
+										<Input
+											type="number"
+											value={field.value}
+											onChange={(v) => {
+												const val = v.target.value;
+												field.onChange(val === "" ? undefined : Number(val));
+											}}
+										/>
 									</FormControl>
 								</FormItem>
 							)}
