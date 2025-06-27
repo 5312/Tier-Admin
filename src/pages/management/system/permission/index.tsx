@@ -1,13 +1,16 @@
+import menuService from "@/api/services/menuService";
 import { Icon } from "@/components/icon";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader } from "@/ui/card";
+import { useQuery } from "@tanstack/react-query";
 import Table, { type ColumnsType } from "antd/es/table";
 import { isNil } from "ramda";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Permission_Old } from "#/entity";
 import { BasicStatus, PermissionType } from "#/enum";
+
 import PermissionModal, { type PermissionModalProps } from "./permission-modal";
 
 const defaultPermissionValue: Permission_Old = {
@@ -42,7 +45,7 @@ export default function PermissionPage() {
 			title: "名称",
 			dataIndex: "name",
 			width: 300,
-			render: (_, record) => <div>{t(record.label)}</div>,
+			render: (_, record) => <div>{t(record.name)}</div>,
 		},
 		{
 			title: "类型",
@@ -73,7 +76,7 @@ export default function PermissionPage() {
 			width: 120,
 			render: (status) => <Badge variant={status === BasicStatus.DISABLE ? "error" : "success"}>{status === BasicStatus.DISABLE ? "禁用" : "启用"}</Badge>,
 		},
-		{ title: "排序", dataIndex: "order", width: 60 },
+		{ title: "排序", dataIndex: "sort", width: 60 },
 		{
 			title: "操作",
 			key: "operation",
@@ -115,6 +118,13 @@ export default function PermissionPage() {
 			formValue,
 		}));
 	};
+
+	// 在组织列表页面，获取组织列表数据
+	const { data } = useQuery({
+		queryKey: ["menu"],
+		queryFn: menuService.getMenuTree,
+	});
+
 	return (
 		<Card>
 			<CardHeader>
@@ -124,7 +134,7 @@ export default function PermissionPage() {
 				</div>
 			</CardHeader>
 			<CardContent>
-				<Table rowKey="id" size="small" scroll={{ x: "max-content" }} pagination={false} columns={columns} dataSource={[]} />
+				<Table rowKey="id" size="small" scroll={{ x: "max-content" }} pagination={false} columns={columns} dataSource={data} />
 			</CardContent>
 			<PermissionModal {...permissionModalProps} />
 		</Card>

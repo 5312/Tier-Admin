@@ -1,7 +1,7 @@
-import type { ResultStuts } from "./enum";
+import type { ResultCode } from "./enum";
 
 export interface Result<T = unknown> {
-	status: ResultStuts;
+	code: ResultCode;
 	message: string;
 	data: T;
 }

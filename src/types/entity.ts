@@ -78,7 +78,7 @@ export interface Menu extends CommonOptions, MenuMetaInfo {
 	parentId: string;
 	name: string;
 	code: string;
-	order?: number;
+	sort?: number;
 	type: PermissionType;
 }
 

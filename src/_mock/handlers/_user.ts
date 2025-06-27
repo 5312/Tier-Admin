@@ -1,5 +1,5 @@
 import { UserApi } from "@/api/services/userService";
-import { ResultStuts } from "@/types/enum";
+import { ResultCode } from "@/types/enum";
 import { convertFlatToTree } from "@/utils/tree";
 import { faker } from "@faker-js/faker";
 import { http, HttpResponse } from "msw";
@@ -12,7 +12,7 @@ const signIn = http.post(`/api${UserApi.SignIn}`, async ({ request }) => {
 
 	if (!user || user.password !== password) {
 		return HttpResponse.json({
-			status: 10001,
+			code: 10001,
 			message: "Incorrect username or password.",
 		});
 	}
@@ -30,7 +30,7 @@ const signIn = http.post(`/api${UserApi.SignIn}`, async ({ request }) => {
 	const menu = convertFlatToTree(DB_MENU);
 
 	return HttpResponse.json({
-		status: ResultStuts.SUCCESS,
+		code: ResultCode.SUCCESS,
 		message: "",
 		data: {
 			user: { ...userWithoutPassword, roles, permissions, menu },
