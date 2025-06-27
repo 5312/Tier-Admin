@@ -96,7 +96,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 	});
 
 	return (
-		<Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
+		<Dialog open={show} onOpenChange={(open:any) => !open && onCancel()}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
@@ -118,7 +118,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 											variant="outline"
 											className="w-auto"
 											value={String(field.value)}
-											onValueChange={(value) => {
+											onValueChange={(value:any) => {
 												if (value !== "") {
 													field.onChange(Number(value));
 												}
@@ -239,7 +239,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 											type="single"
 											variant="outline"
 											value={String(!!field.value)}
-											onValueChange={(value) => {
+											onValueChange={(value:any) => {
 												field.onChange(Boolean(value));
 											}}
 										>
@@ -282,7 +282,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 											type="single"
 											variant="outline"
 											value={String(field.value)}
-											onValueChange={(value) => {
+											onValueChange={(value:any) => {
 												field.onChange(Number(value));
 											}}
 										>
