@@ -81,6 +81,9 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
+					<p id="permission-modal-description" className="sr-only">
+						权限管理表单
+					</p>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -89,7 +92,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 							name="type"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Type</FormLabel>
+									<FormLabel>类型</FormLabel>
 									<FormControl>
 										<ToggleGroup
 											type="single"
@@ -100,8 +103,8 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 												field.onChange(value);
 											}}
 										>
-											<ToggleGroupItem value={String(PermissionType.CATALOGUE)}>CATALOGUE</ToggleGroupItem>
-											<ToggleGroupItem value={String(PermissionType.MENU)}>MENU</ToggleGroupItem>
+											<ToggleGroupItem value={String(PermissionType.CATALOGUE)}>目录</ToggleGroupItem>
+											<ToggleGroupItem value={String(PermissionType.MENU)}>菜单</ToggleGroupItem>
 										</ToggleGroup>
 									</FormControl>
 								</FormItem>
@@ -113,7 +116,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Name</FormLabel>
+									<FormLabel>名称</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -126,7 +129,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 							name="label"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Label</FormLabel>
+									<FormLabel>标签</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -139,7 +142,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 							name="parentId"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Parent</FormLabel>
+									<FormLabel>父级</FormLabel>
 									<FormControl>
 										<TreeSelect
 											fieldNames={{
@@ -170,7 +173,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 							name="route"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Route</FormLabel>
+									<FormLabel>路由</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -184,7 +187,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 								name="component"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Component</FormLabel>
+										<FormLabel>组件</FormLabel>
 										<FormControl>
 											<AutoComplete
 												options={compOptions}
@@ -203,7 +206,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 							name="icon"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Icon</FormLabel>
+									<FormLabel>图标</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -216,7 +219,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 							name="hide"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Hide</FormLabel>
+									<FormLabel>隐藏</FormLabel>
 									<FormControl>
 										<ToggleGroup
 											type="single"
@@ -226,8 +229,8 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 												field.onChange(Boolean(value));
 											}}
 										>
-											<ToggleGroupItem value="false">Show</ToggleGroupItem>
-											<ToggleGroupItem value="true">Hide</ToggleGroupItem>
+											<ToggleGroupItem value="false">显示</ToggleGroupItem>
+											<ToggleGroupItem value="true">隐藏</ToggleGroupItem>
 										</ToggleGroup>
 									</FormControl>
 								</FormItem>
@@ -239,7 +242,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 							name="order"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Order</FormLabel>
+									<FormLabel>排序</FormLabel>
 									<FormControl>
 										<Input type="number" {...field} />
 									</FormControl>
@@ -252,7 +255,7 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 							name="status"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Status</FormLabel>
+									<FormLabel>状态</FormLabel>
 									<FormControl>
 										<ToggleGroup
 											type="single"
@@ -262,8 +265,8 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 												field.onChange(Number(value));
 											}}
 										>
-											<ToggleGroupItem value={String(BasicStatus.ENABLE)}>Enable</ToggleGroupItem>
-											<ToggleGroupItem value={String(BasicStatus.DISABLE)}>Disable</ToggleGroupItem>
+											<ToggleGroupItem value={String(BasicStatus.ENABLE)}>启用</ToggleGroupItem>
+											<ToggleGroupItem value={String(BasicStatus.DISABLE)}>禁用</ToggleGroupItem>
 										</ToggleGroup>
 									</FormControl>
 								</FormItem>
@@ -272,10 +275,10 @@ export default function PermissionModal({ title, show, formValue, onOk, onCancel
 
 						<DialogFooter>
 							<Button variant="outline" onClick={onCancel}>
-								Cancel
+								取消
 							</Button>
 							<Button type="submit" variant="default">
-								Confirm
+								确认
 							</Button>
 						</DialogFooter>
 					</form>

@@ -28,7 +28,7 @@ export default function PermissionPage() {
 
 	const [permissionModalProps, setPermissionModalProps] = useState<PermissionModalProps>({
 		formValue: { ...defaultPermissionValue },
-		title: "New",
+		title: "新建",
 		show: false,
 		onOk: () => {
 			setPermissionModalProps((prev) => ({ ...prev, show: false }));
@@ -39,19 +39,19 @@ export default function PermissionPage() {
 	});
 	const columns: ColumnsType<Permission_Old> = [
 		{
-			title: "Name",
+			title: "名称",
 			dataIndex: "name",
 			width: 300,
 			render: (_, record) => <div>{t(record.label)}</div>,
 		},
 		{
-			title: "Type",
+			title: "类型",
 			dataIndex: "type",
 			width: 60,
 			render: (_, record) => <Badge variant="info">{PermissionType[record.type]}</Badge>,
 		},
 		{
-			title: "Icon",
+			title: "图标",
 			dataIndex: "icon",
 			width: 60,
 			render: (icon: string) => {
@@ -63,19 +63,19 @@ export default function PermissionPage() {
 			},
 		},
 		{
-			title: "Component",
+			title: "组件",
 			dataIndex: "component",
 		},
 		{
-			title: "Status",
+			title: "状态",
 			dataIndex: "status",
 			align: "center",
 			width: 120,
-			render: (status) => <Badge variant={status === BasicStatus.DISABLE ? "error" : "success"}>{status === BasicStatus.DISABLE ? "Disable" : "Enable"}</Badge>,
+			render: (status) => <Badge variant={status === BasicStatus.DISABLE ? "error" : "success"}>{status === BasicStatus.DISABLE ? "禁用" : "启用"}</Badge>,
 		},
-		{ title: "Order", dataIndex: "order", width: 60 },
+		{ title: "排序", dataIndex: "order", width: 60 },
 		{
-			title: "Action",
+			title: "操作",
 			key: "operation",
 			align: "center",
 			width: 100,
@@ -102,7 +102,7 @@ export default function PermissionPage() {
 			...prev,
 			show: true,
 			...defaultPermissionValue,
-			title: "New",
+			title: "新建",
 			formValue: { ...defaultPermissionValue, parentId: parentId ?? "" },
 		}));
 	};
@@ -111,7 +111,7 @@ export default function PermissionPage() {
 		setPermissionModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Edit",
+			title: "编辑",
 			formValue,
 		}));
 	};
@@ -119,8 +119,8 @@ export default function PermissionPage() {
 		<Card>
 			<CardHeader>
 				<div className="flex items-center justify-between">
-					<div>Permission List</div>
-					<Button onClick={() => onCreate()}>New</Button>
+					<div>权限列表</div>
+					<Button onClick={() => onCreate()}>新建</Button>
 				</div>
 			</CardHeader>
 			<CardContent>

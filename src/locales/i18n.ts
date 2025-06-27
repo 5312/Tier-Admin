@@ -6,7 +6,7 @@ import { LocalEnum, StorageEnum } from "#/enum";
 import en_US from "./lang/en_US";
 import zh_CN from "./lang/zh_CN";
 
-const defaultLng = getStringItem(StorageEnum.I18N) || (LocalEnum.en_US as string);
+const defaultLng = getStringItem(StorageEnum.I18N) || (LocalEnum.zh_CN as string);
 
 // 初始化时设置HTML lang属性，否则系统语言和设定不同时会弹出浏览器的翻译提示
 document.documentElement.lang = defaultLng;
@@ -22,13 +22,13 @@ i18n
 	.init({
 		debug: true,
 		lng: defaultLng, // localstorage -> i18nextLng: en_US
-		fallbackLng: LocalEnum.en_US,
+		fallbackLng: LocalEnum.zh_CN,
 		interpolation: {
 			escapeValue: false, // not needed for react as it escapes by default
 		},
 		resources: {
-			en_US: { translation: en_US },
 			zh_CN: { translation: zh_CN },
+			en_US: { translation: en_US },
 		},
 	});
 
